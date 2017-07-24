@@ -1,0 +1,6 @@
+appdirs==1.4.3
+packaging==16.8
+pyaxl==1.1
+pyparsing==2.2.0
+six==1.10.0
+suds-jurko==0.6

@@ -1,0 +1,6 @@
+{
+    "wsdl":"file:///home/uahusers/hf0002/Projects/axlrows/axlsqltoolkit/schema/11.5/AXLAPI.wsdl",
+    "location":"https://ucm.example.com:8443/axl/",
+    "username":"whoever",
+    "password":"whatever"
+}
