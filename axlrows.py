@@ -13,10 +13,10 @@ class CiscoUCM:
     def get_phone(self, name):
         try:
             phones = self.__client.service.listPhone({'name':name})[0][0]
+            uuid = phones[0]._uuid
+            return self.__client.service.getPhone(uuid=uuid)[0][0]
         except IndexError:
             return None
-        uuid = phones[0]._uuid
-        return self.__client.service.getPhone(uuid=uuid)[0][0]
     
     def update_phone(self, phone, **kwargs):
         self.__client.service.updatePhone(uuid=phone._uuid, **kwargs)
