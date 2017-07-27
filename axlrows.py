@@ -11,8 +11,11 @@ class CiscoUCM:
             self.__client = Client(config['wsdl'], location=config['location'], username=config['username'], password=config['password'])
 
     def get_phones(self, **kwargs):
-        uuids = [x._uuid for x in self.__client.service.listPhone(kwargs)[0][0]]
-        return (self.__client.service.getPhone(uuid=uuid)[0][0] for uuid in uuids)
+        try:
+            uuids = [x._uuid for x in self.__client.service.listPhone(kwargs)[0][0]]
+            return (self.__client.service.getPhone(uuid=uuid)[0][0] for uuid in uuids)
+        except IndexError:
+            return iter(()) #empty generator
 
     def get_phone(self, **kwargs):
         try:
