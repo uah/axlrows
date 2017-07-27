@@ -14,9 +14,9 @@ class CiscoUCM:
         uuids = [x._uuid for x in self.__client.service.listPhone(kwargs)[0][0]]
         return (self.__client.service.getPhone(uuid=uuid)[0][0] for uuid in uuids)
 
-    def get_phone(self, name):
+    def get_phone(self, **kwargs):
         try:
-            phones = self.__client.service.listPhone({'name':name})[0][0]
+            phones = self.__client.service.listPhone(kwargs)[0][0]
             uuid = phones[0]._uuid
             return self.__client.service.getPhone(uuid=uuid)[0][0]
         except IndexError:
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     quit()
 
     print("Querying")
-    phone = ucm.get_phone('SEPBC671C30B2F7')
+    phone = ucm.get_phone(name='SEPBC671C30B2F7')
 
     lines = phone.lines[0]
     print(lines)
