@@ -10,6 +10,10 @@ class CiscoUCM:
             print("Bringing up client")
             self.__client = Client(config['wsdl'], location=config['location'], username=config['username'], password=config['password'])
 
+    def get_phones(self, **kwargs):
+        uuids = [x._uuid for x in self.__client.service.listPhone(kwargs)[0][0]]
+        return (self.__client.service.getPhone(uuid=uuid)[0][0] for uuid in uuids)
+
     def get_phone(self, name):
         try:
             phones = self.__client.service.listPhone({'name':name})[0][0]
