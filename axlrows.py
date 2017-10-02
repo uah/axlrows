@@ -1,6 +1,7 @@
 from suds.client import Client
 import json
 from ptpython import repl
+from datetime import datetime
 
 class CiscoUCM:
     def __init__(self):
@@ -16,29 +17,68 @@ class CiscoUCM:
             return (self.__client.service.getPhone(uuid=uuid)[0][0] for uuid in uuids)
         except IndexError:
             return iter(()) #empty generator
-
-    def get_phone(self, **kwargs):
-        try:
-            phones = self.__client.service.listPhone(kwargs)[0][0]
-            uuid = phones[0]._uuid
-            return self.__client.service.getPhone(uuid=uuid)[0][0]
-        except IndexError:
-            return None
     
     def update_phone(self, phone, **kwargs):
-        self.__client.service.updatePhone(uuid=phone._uuid, **kwargs)
+        self.__client.service.updateLine(uuid=phone._uuid, **kwargs)
 
     def apply_phone(self, phone):
         self.__client.service.applyPhone(uuid=phone._uuid)
 
-    def get_lines(self, dn):
+    def get_lines(self, **kwargs):
         try:
-            lines = uuid=self.__client.service.listLine({'pattern':dn})[0][0]
+            uuids = [x._uuid for x in self.__client.service.listLine(kwargs)[0][0]]
+            return (self.__client.service.getLine(uuid=uuid)[0][0] for uuid in uuids)
         except IndexError:
-            return None
-        uuids = [line._uuid for line in lines]
-        return [self.__client.service.getLine(uuid=x)[0][0] for x in uuids]
-        #return self.__client.service.getLine(uuid=uuid)[0][0]
+            return iter(())
+
+    def update_line(self, line, **kwargs):
+        self.__client.service.updateLine(uuid=line._uuid, **kwargs)
+
+    def get_users(self, **kwargs):
+        try:
+            uuids = [x._uuid for x in self.__client.service.listUser(kwargs)[0][0]]
+            return (self.__client.service.getUser(uuid=uuid)[0][0] for uuid in uuids)
+        except IndexError:
+            return iter(()) #empty generator
+
+    def update_user(self, user, **kwargs):
+        self.__client.service.updateUser(uuid=user._uuid, **kwargs)
+
+    def remove_user(self, user):
+        self.__client.service.removeUser(uuid=user._uuid)
+    
+    #Health checks
+    def get_users_without_extensions(self):
+        all_users = self.get_users(department='')
+        bad_users = []
+        for user in all_users:
+            if user.primaryExtension == '' and user.associatedDevices == '' and user.associatedRemoteDestinationProfiles == '':
+                bad_users.append(user)
+        return bad_users
+
+    def get_lines_in_holding_with_devices(self):
+        holding_lines = self.get_lines(routePartitionName='Sys-Holding-PT')
+        with_devices = []
+        for line in holding_lines:
+            if int(line.pattern[0]) in list(range(1, 7+1)) and line.associatedDevices != "":
+                with_devices.append(line)
+        return with_devices
+
+    def run_health_check(self):
+        print("Running VoIP Health Check at", datetime.now())
+
+    #Cleanups
+    def cleanup_lines_in_holding_with_devices(self):
+        for line in self.get_lines_in_holding_with_devices():
+            print("Moving", line.pattern, "to system extensions")
+            self.update_line(line, newRoutePartitionName='Sys-Ext-PT')
+
+    def cleanup_users_without_extensions(self):
+        for user in self.get_users_without_extensions():
+            print("Converting", user.userid, "to local")
+            self.update_user(user, ldapDirectoryName="", userIdentity="")
+            print("Removing", user.userid)
+            self.remove_user(user)
 
 
 if __name__ == "__main__":
@@ -46,7 +86,6 @@ if __name__ == "__main__":
     ucm = CiscoUCM()
 
     print("Starting repl")
-    #repl.embed(globals(), locals())
     method_names = [m for m in dir(ucm) if '__' not in m]
     repl.embed(dict(zip(method_names, [getattr(ucm, mn) for mn in method_names])), locals())
 
