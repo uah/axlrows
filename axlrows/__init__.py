@@ -6,10 +6,8 @@ __all__ = ['CiscoUCM']
 
 class CiscoUCM:
     def __init__(self):
-        print("Loading configuration")
         with open('config.json', 'r') as file:
             config = json.loads(file.read())
-            print("Bringing up client")
             self.__client = Client(config['wsdl'], location=config['location'], username=config['username'], password=config['password'])
 
     def get_phones(self, **kwargs):
