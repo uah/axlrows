@@ -46,37 +46,3 @@ class CiscoUCM:
     def remove_user(self, user):
         self.__client.service.removeUser(uuid=user._uuid)
     
-    #Health checks
-    def get_users_without_extensions(self):
-        all_users = self.get_users(department='')
-        bad_users = []
-        for user in all_users:
-            if user.primaryExtension == '' and user.associatedDevices == '' and user.associatedRemoteDestinationProfiles == '':
-                bad_users.append(user)
-        return bad_users
-
-    def get_lines_in_holding_with_devices(self):
-        holding_lines = self.get_lines(routePartitionName='Sys-Holding-PT')
-        with_devices = []
-        for line in holding_lines:
-            if int(line.pattern[0]) in list(range(1, 7+1)) and line.associatedDevices != "":
-                with_devices.append(line)
-        return with_devices
-
-    def run_health_check(self):
-        print("Running VoIP Health Check at", datetime.now())
-
-    #Cleanups
-    def cleanup_lines_in_holding_with_devices(self):
-        for line in self.get_lines_in_holding_with_devices():
-            print("Moving", line.pattern, "to system extensions")
-            self.update_line(line, newRoutePartitionName='Sys-Ext-PT')
-
-    def cleanup_users_without_extensions(self):
-        for user in self.get_users_without_extensions():
-            print("Converting", user.userid, "to local")
-            self.update_user(user, ldapDirectoryName="", userIdentity="")
-            print("Removing", user.userid)
-            self.remove_user(user)
-
-
