@@ -2,7 +2,7 @@ from distutils.core import setup
 from setuptools import find_packages
 setup(
     name='axlrows',
-    version='0.0.4',
+    version='0.0.6',
     install_requires=[
         "Pygments==2.2.0",
         "appdirs==1.4.3",

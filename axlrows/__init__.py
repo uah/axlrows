@@ -45,4 +45,9 @@ class CiscoUCM:
 
     def remove_user(self, user):
         self.__client.service.removeUser(uuid=user._uuid)
+
+
+    def execute_sql_update(self, **kwargs):
+        self.__client.service.executeSQLUpdate(**kwargs)
+
     
