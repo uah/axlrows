@@ -18,7 +18,7 @@ class CiscoUCM:
             return iter(()) #empty generator
     
     def update_phone(self, phone, **kwargs):
-        self.__client.service.updateLine(uuid=phone._uuid, **kwargs)
+        self.__client.service.updatePhone(uuid=phone._uuid, **kwargs)
 
     def apply_phone(self, phone):
         self.__client.service.applyPhone(uuid=phone._uuid)
