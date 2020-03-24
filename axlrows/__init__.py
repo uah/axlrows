@@ -23,6 +23,11 @@ class CiscoUCM:
     def apply_phone(self, phone):
         self.__client.service.applyPhone(uuid=phone._uuid)
 
+    def add_phone(self, **kwargs):
+        if "deviceClass" in kwargs:
+            kwargs["class"] = kwargs.pop("deviceClass")
+        self.__client.service.addPhone(kwargs)
+
     def get_lines(self, **kwargs):
         try:
             uuids = [x._uuid for x in self.__client.service.listLine(kwargs)[0][0]]
