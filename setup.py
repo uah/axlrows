@@ -4,7 +4,7 @@ setup(
     name='axlrows',
     version='0.0.6',
     install_requires=[
-        "Pygments==2.2.0",
+        "Pygments==2.7.4",
         "appdirs==1.4.3",
         "docopt==0.6.2",
         "jedi==0.10.2",
